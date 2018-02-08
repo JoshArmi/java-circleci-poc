@@ -1,0 +1,37 @@
+version: 2
+jobs:
+    build:
+
+        working_directory: ~/vbo-api-redemptions
+
+        docker:
+            - image: circleci/openjdk:8
+            - image: circleci/postgres:9.6.3-alpine
+              environment:
+                  POSTGRES_USER: postgres
+                  POSTGRES_PASSWORD: mysecretpassword
+                  POSTGRES_DB: redemptions
+
+        steps:
+
+            - checkout
+
+            - restore_cache:
+                key: vbo-api-redemptions-{{ checksum "pom.xml" }}
+            
+            - run: mvn dependency:go-offline
+
+            - save_cache:
+                paths:
+                    - ~/.m2
+                key: vbo-api-redemptions-{{ checksum "pom.xml }}
+
+            - run: mvn clean install
+
+            - store_test_results:
+                path: target/surefire-reports
+
+            - store_artifacts:
+                path: target/redemptions-0.0.1-SNAPSHOT.jar
+
+
