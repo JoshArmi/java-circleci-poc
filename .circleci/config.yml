@@ -25,6 +25,31 @@ jobs:
             - save_cache:
                 paths:
                     - ~/.m2
-                key: java-circleci-poc-{{ checksum "pom.xml" }}
+                key: java-circleci-poc-{{ checksum "all-poms.xml" }}
 
+    deploy:
+
+        working_directory: ~/java-circleci-poc
+
+        docker:
+            - image: circleci/openjdk:8
+
+        steps:
+            - run:
+                name: Do a thing
+                command: echo "Howdy"
+
+workflows:
+    version: 2
+    build_and_deploy:
+        jobs:
+            - build
+            - deploy:
+                requires:
+                    - build
+                filters:
+                    branches:
+                        only: master
+                    tags:
+                        only: /^v.*/
 
